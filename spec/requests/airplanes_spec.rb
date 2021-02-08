@@ -12,116 +12,116 @@ require 'rails_helper'
 # of tools you can use to make these specs even more expressive, but we're
 # sticking to rails and rspec-rails APIs to keep things simple and stable.
 
-RSpec.describe "/airplanes", type: :request do
+RSpec.describe '/airplanes', type: :request do
   # This should return the minimal set of attributes required to create a valid
   # Airplane. As you add validations to Airplane, be sure to
   # adjust the attributes here as well.
-  let(:valid_attributes) {
-    {model: "737"}
-  }
+  let(:valid_attributes) do
+    { model: '737', number: 'AAA', seats: 200 }
+  end
 
-  let(:invalid_attributes) {
-    {cicciocalippo: "737"}
-  }
+  let(:invalid_attributes) do
+    { seats: 0 }
+  end
 
   # This should return the minimal set of values that should be in the headers
   # in order to pass any filters (e.g. authentication) defined in
   # AirplanesController, or in your router and rack
   # middleware. Be sure to keep this updated too.
-  let(:valid_headers) {
+  let(:valid_headers) do
     {}
-  }
+  end
 
-  describe "GET /index" do
-    it "renders a successful response" do
+  describe 'GET /index' do
+    it 'renders a successful response' do
       Airplane.create! valid_attributes
       get airplanes_url, headers: valid_headers, as: :json
       expect(response).to be_successful
     end
   end
 
-  describe "GET /show" do
-    it "renders a successful response" do
+  describe 'GET /show' do
+    it 'renders a successful response' do
       airplane = Airplane.create! valid_attributes
       get airplane_url(airplane), as: :json
       expect(response).to be_successful
     end
   end
 
-  describe "POST /create" do
-    context "with valid parameters" do
-      it "creates a new Airplane" do
-        expect {
+  describe 'POST /create' do
+    context 'with valid parameters' do
+      it 'creates a new Airplane' do
+        expect do
           post airplanes_url,
                params: { airplane: valid_attributes }, headers: valid_headers, as: :json
-        }.to change(Airplane, :count).by(1)
+        end.to change(Airplane, :count).by(1)
       end
 
-      it "renders a JSON response with the new airplane" do
+      it 'renders a JSON response with the new airplane' do
         post airplanes_url,
              params: { airplane: valid_attributes }, headers: valid_headers, as: :json
         expect(response).to have_http_status(:created)
-        expect(response.content_type).to match(a_string_including("application/json"))
+        expect(response.content_type).to match(a_string_including('application/json'))
       end
     end
 
-    context "with invalid parameters" do
-      it "does not create a new Airplane" do
-        expect {
+    context 'with invalid parameters' do
+      it 'does not create a new Airplane' do
+        expect do
           post airplanes_url,
                params: { airplane: invalid_attributes }, as: :json
-        }.to change(Airplane, :count).by(0)
+        end.to change(Airplane, :count).by(0)
       end
 
-      it "renders a JSON response with errors for the new airplane" do
+      it 'renders a JSON response with errors for the new airplane' do
         post airplanes_url,
              params: { airplane: invalid_attributes }, headers: valid_headers, as: :json
         expect(response).to have_http_status(:unprocessable_entity)
-        expect(response.content_type).to match(a_string_including("application/json"))
+        expect(response.content_type).to match(a_string_including('application/json'))
       end
     end
   end
 
-  describe "PATCH /update" do
-    context "with valid parameters" do
-      let(:new_attributes) {
-       {model: "738"}
-      }
+  describe 'PATCH /update' do
+    context 'with valid parameters' do
+      let(:new_attributes) do
+        { model: '738' }
+      end
 
-      it "updates the requested airplane" do
+      it 'updates the requested airplane' do
         airplane = Airplane.create! valid_attributes
         patch airplane_url(airplane),
               params: { airplane: new_attributes }, headers: valid_headers, as: :json
         airplane.reload
-        expect(airplane.model).to eq("738")
+        expect(airplane.model).to eq('738')
       end
 
-      it "renders a JSON response with the airplane" do
+      it 'renders a JSON response with the airplane' do
         airplane = Airplane.create! valid_attributes
         patch airplane_url(airplane),
               params: { airplane: new_attributes }, headers: valid_headers, as: :json
         expect(response).to have_http_status(:ok)
-        expect(response.content_type).to match(a_string_including("application/json"))
+        expect(response.content_type).to match(a_string_including('application/json'))
       end
     end
 
-    context "with invalid parameters" do
-      it "renders a JSON response with errors for the airplane" do
+    context 'with invalid parameters' do
+      it 'renders a JSON response with errors for the airplane' do
         airplane = Airplane.create! valid_attributes
         patch airplane_url(airplane),
               params: { airplane: invalid_attributes }, headers: valid_headers, as: :json
-        expect(response).to have_http_status(:ok)
-        expect(response.content_type).to match(a_string_including("application/json"))
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response.content_type).to match(a_string_including('application/json'))
       end
     end
   end
 
-  describe "DELETE /destroy" do
-    it "destroys the requested airplane" do
+  describe 'DELETE /destroy' do
+    it 'destroys the requested airplane' do
       airplane = Airplane.create! valid_attributes
-      expect {
+      expect do
         delete airplane_url(airplane), headers: valid_headers, as: :json
-      }.to change(Airplane, :count).by(-1)
+      end.to change(Airplane, :count).by(-1)
     end
   end
 end
