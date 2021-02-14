@@ -16,14 +16,28 @@ RSpec.describe '/passengers', type: :request do
   # This should return the minimal set of attributes required to create a valid
   # Passenger. As you add validations to Passenger, be sure to
   # adjust the attributes here as well.
+  let(:airplane_attributes) do
+    { model: '737', number: 'AAA', seats: 200 }
+  end
+
+  let(:flight_attributes) do
+    {
+      from: 'BGY',
+      to: 'KRK',
+      departure: Time.current + (60 * 60),
+      arrival: Time.current + (60 * 60 * 3),
+      airplane_id: 1
+    }
+  end
+
   let(:valid_attributes) do
     {
-      firstname: 'John', lastname: 'Doe'
+      firstname: 'John', lastname: 'Doe', flight_id: 1
     }
   end
 
   let(:invalid_attributes) do
-    {pippo: 123}
+    { ffirstname: nil }
   end
 
   # This should return the minimal set of values that should be in the headers
@@ -36,16 +50,20 @@ RSpec.describe '/passengers', type: :request do
 
   describe 'GET /index' do
     it 'renders a successful response' do
+      Airplane.create! airplane_attributes
+      flight = Flight.create! flight_attributes
       Passenger.create! valid_attributes
-      get passengers_url, headers: valid_headers, as: :json
+      get flight_passengers_url(flight), headers: valid_headers, as: :json
       expect(response).to be_successful
     end
   end
 
   describe 'GET /show' do
     it 'renders a successful response' do
+      Airplane.create! airplane_attributes
+      flight = Flight.create! flight_attributes
       passenger = Passenger.create! valid_attributes
-      get passenger_url(passenger), as: :json
+      get flight_passengers_url(flight, passenger), as: :json
       expect(response).to be_successful
     end
   end
@@ -53,14 +71,18 @@ RSpec.describe '/passengers', type: :request do
   describe 'POST /create' do
     context 'with valid parameters' do
       it 'creates a new Passenger' do
+        Airplane.create! airplane_attributes
+        flight = Flight.create! flight_attributes
         expect do
-          post passengers_url,
+          post flight_passengers_url(flight),
                params: { passenger: valid_attributes }, headers: valid_headers, as: :json
         end.to change(Passenger, :count).by(1)
       end
 
       it 'renders a JSON response with the new passenger' do
-        post passengers_url,
+        Airplane.create! airplane_attributes
+        flight = Flight.create! flight_attributes
+        post flight_passengers_url(flight),
              params: { passenger: valid_attributes }, headers: valid_headers, as: :json
         expect(response).to have_http_status(:created)
         expect(response.content_type).to match(a_string_including('application/json'))
@@ -69,14 +91,18 @@ RSpec.describe '/passengers', type: :request do
 
     context 'with invalid parameters' do
       it 'does not create a new Passenger' do
+        Airplane.create! airplane_attributes
+        flight = Flight.create! flight_attributes
         expect do
-          post passengers_url,
+          post flight_passengers_url(flight),
                params: { passenger: invalid_attributes }, as: :json
         end.to change(Passenger, :count).by(0)
       end
 
       it 'renders a JSON response with errors for the new passenger' do
-        post passengers_url,
+        Airplane.create! airplane_attributes
+        flight = Flight.create! flight_attributes
+        post flight_passengers_url(flight),
              params: { passenger: invalid_attributes }, headers: valid_headers, as: :json
         expect(response).to have_http_status(:unprocessable_entity)
         expect(response.content_type).to match(a_string_including('application/json'))
@@ -87,20 +113,24 @@ RSpec.describe '/passengers', type: :request do
   describe 'PATCH /update' do
     context 'with valid parameters' do
       let(:new_attributes) do
-        skip('Add a hash of attributes valid for your model')
+        { firstname: 'Jane' }
       end
 
       it 'updates the requested passenger' do
+        Airplane.create! airplane_attributes
+        flight = Flight.create! flight_attributes
         passenger = Passenger.create! valid_attributes
-        patch passenger_url(passenger),
+        patch flight_passenger_url(flight, passenger),
               params: { passenger: new_attributes }, headers: valid_headers, as: :json
         passenger.reload
-        skip('Add assertions for updated state')
+        expect(passenger.firstname).to eq('Jane')
       end
 
       it 'renders a JSON response with the passenger' do
+        Airplane.create! airplane_attributes
+        flight = Flight.create! flight_attributes
         passenger = Passenger.create! valid_attributes
-        patch passenger_url(passenger),
+        patch flight_passenger_url(flight, passenger),
               params: { passenger: new_attributes }, headers: valid_headers, as: :json
         expect(response).to have_http_status(:ok)
         expect(response.content_type).to match(a_string_including('application/json'))
@@ -109,8 +139,10 @@ RSpec.describe '/passengers', type: :request do
 
     context 'with invalid parameters' do
       it 'renders a JSON response with errors for the passenger' do
+        Airplane.create! airplane_attributes
+        flight = Flight.create! flight_attributes
         passenger = Passenger.create! valid_attributes
-        patch passenger_url(passenger),
+        patch flight_passenger_url(flight, passenger),
               params: { passenger: invalid_attributes }, headers: valid_headers, as: :json
         expect(response).to have_http_status(:unprocessable_entity)
         expect(response.content_type).to match(a_string_including('application/json'))
@@ -120,9 +152,11 @@ RSpec.describe '/passengers', type: :request do
 
   describe 'DELETE /destroy' do
     it 'destroys the requested passenger' do
+      Airplane.create! airplane_attributes
+      flight = Flight.create! flight_attributes
       passenger = Passenger.create! valid_attributes
       expect do
-        delete passenger_url(passenger), headers: valid_headers, as: :json
+        delete flight_passenger_url(flight, passenger), headers: valid_headers, as: :json
       end.to change(Passenger, :count).by(-1)
     end
   end

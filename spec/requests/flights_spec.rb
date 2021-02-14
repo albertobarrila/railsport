@@ -16,15 +16,23 @@ RSpec.describe '/flights', type: :request do
   # This should return the minimal set of attributes required to create a valid
   # Flight. As you add validations to Flight, be sure to
   # adjust the attributes here as well.
+  let(:airplane_attributes) do
+    { model: '737', number: 'AAA', seats: 200 }
+  end
+
   let(:valid_attributes) do
     {
-      from: 'BGY', to: 'KRK', departure: Time.current + (60 * 60), arrival: Time.current + (60 * 60 * 3)
+      from: 'BGY',
+      to: 'KRK',
+      departure: Time.current + (60 * 60),
+      arrival: Time.current + (60 * 60 * 3),
+      airplane_id: 1
     }
   end
 
   let(:invalid_attributes) do
     {
-      from: 'BGY', to: 'KRK', departure: Time.current - (60 * 60 * 2), arrival: Time.current - (60 * 60)
+      from: 'BGY', to: 'KRK', departure: Time.current - (60 * 60 * 2), arrival: Time.current - (60 * 60), airplane_id: 1
     }
   end
 
@@ -38,6 +46,7 @@ RSpec.describe '/flights', type: :request do
 
   describe 'GET /index' do
     it 'renders a successful response' do
+      Airplane.create! airplane_attributes
       Flight.create! valid_attributes
       get flights_url, headers: valid_headers, as: :json
       expect(response).to be_successful
@@ -46,6 +55,7 @@ RSpec.describe '/flights', type: :request do
 
   describe 'GET /show' do
     it 'renders a successful response' do
+      Airplane.create! airplane_attributes
       flight = Flight.create! valid_attributes
       get flight_url(flight), as: :json
       expect(response).to be_successful
@@ -55,6 +65,7 @@ RSpec.describe '/flights', type: :request do
   describe 'POST /create' do
     context 'with valid parameters' do
       it 'creates a new Flight' do
+        Airplane.create! airplane_attributes
         expect do
           post flights_url,
                params: { flight: valid_attributes }, headers: valid_headers, as: :json
@@ -62,6 +73,7 @@ RSpec.describe '/flights', type: :request do
       end
 
       it 'renders a JSON response with the new flight' do
+        Airplane.create! airplane_attributes
         post flights_url,
              params: { flight: valid_attributes }, headers: valid_headers, as: :json
         expect(response).to have_http_status(:created)
@@ -71,6 +83,7 @@ RSpec.describe '/flights', type: :request do
 
     context 'with invalid parameters' do
       it 'does not create a new Flight' do
+        Airplane.create! airplane_attributes
         expect do
           post flights_url,
                params: { flight: invalid_attributes }, as: :json
@@ -78,6 +91,7 @@ RSpec.describe '/flights', type: :request do
       end
 
       it 'renders a JSON response with errors for the new flight' do
+        Airplane.create! airplane_attributes
         post flights_url,
              params: { flight: invalid_attributes }, headers: valid_headers, as: :json
         expect(response).to have_http_status(:unprocessable_entity)
@@ -89,18 +103,20 @@ RSpec.describe '/flights', type: :request do
   describe 'PATCH /update' do
     context 'with valid parameters' do
       let(:new_attributes) do
-        {from: "KRK", to: "BGY"}
+        { from: 'KRK', to: 'BGY', airplane_id: 1 }
       end
 
       it 'updates the requested flight' do
+        Airplane.create! airplane_attributes
         flight = Flight.create! valid_attributes
         patch flight_url(flight),
               params: { flight: new_attributes }, headers: valid_headers, as: :json
         flight.reload
-        expect(flight.from).to eq("KRK")
+        expect(flight.from).to eq('KRK')
       end
 
       it 'renders a JSON response with the flight' do
+        Airplane.create! airplane_attributes
         flight = Flight.create! valid_attributes
         patch flight_url(flight),
               params: { flight: new_attributes }, headers: valid_headers, as: :json
@@ -111,6 +127,7 @@ RSpec.describe '/flights', type: :request do
 
     context 'with invalid parameters' do
       it 'renders a JSON response with errors for the flight' do
+        Airplane.create! airplane_attributes
         flight = Flight.create! valid_attributes
         patch flight_url(flight),
               params: { flight: invalid_attributes }, headers: valid_headers, as: :json
@@ -122,6 +139,7 @@ RSpec.describe '/flights', type: :request do
 
   describe 'DELETE /destroy' do
     it 'destroys the requested flight' do
+      Airplane.create! airplane_attributes
       flight = Flight.create! valid_attributes
       expect do
         delete flight_url(flight), headers: valid_headers, as: :json

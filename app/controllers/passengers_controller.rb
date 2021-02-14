@@ -1,9 +1,10 @@
 class PassengersController < ApplicationController
+  before_action :set_flight
   before_action :set_passenger, only: %i[show update destroy]
 
   # GET /passengers
   def index
-    @passengers = Passenger.all
+    @passengers = @flight.passengers
 
     render json: @passengers
   end
@@ -15,10 +16,10 @@ class PassengersController < ApplicationController
 
   # POST /passengers
   def create
-    @passenger = Passenger.new(passenger_params)
+    @passenger = @flight.passengers.new(passenger_params)
 
     if @passenger.save
-      render json: @passenger, status: :created, location: @passenger
+      render json: @passenger, status: :created, location: flight_passenger_url(@flight, @passenger)
     else
       render json: @passenger.errors, status: :unprocessable_entity
     end
@@ -41,8 +42,12 @@ class PassengersController < ApplicationController
   private
 
   # Use callbacks to share common setup or constraints between actions.
+  def set_flight
+    @flight = Flight.find(params[:flight_id])
+  end
+
   def set_passenger
-    @passenger = Passenger.find(params[:id])
+    @passenger = @flight.passengers.find(params[:id])
   end
 
   # Only allow a list of trusted parameters through.

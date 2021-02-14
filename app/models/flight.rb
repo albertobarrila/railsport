@@ -9,10 +9,15 @@ class Flight < ApplicationRecord
   validate :departure_is_in_the_future
   validate :arrival_is_in_the_future
 
-  has_one :airplane
+  belongs_to :airplane
+  has_many :passengers
 
   def seats
     airplane.seats
+  end
+
+  def available_seats
+    airplane.seats - passengers.count
   end
 
   private
