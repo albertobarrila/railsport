@@ -7,7 +7,8 @@ class Passenger < ApplicationRecord
   validate :seats_available_on_flight
 
   belongs_to :flight
-
+  belongs_to :user
+  
   def seats_available_on_flight
     return if flight.nil?
 

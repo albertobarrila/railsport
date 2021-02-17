@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# passnger on flight management
+# passenger on flight management
 class PassengersController < ApplicationController
   before_action :set_flight
   before_action :set_passenger, only: %i[show update destroy]
@@ -55,6 +55,6 @@ class PassengersController < ApplicationController
 
   # Only allow a list of trusted parameters through.
   def passenger_params
-    params.require(:passenger).permit(:firstname, :lastname)
+    params.require(:passenger).permit(:firstname, :lastname, :user_id)
   end
 end
