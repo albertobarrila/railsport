@@ -1,3 +1,6 @@
+# frozen_string_literal: true
+
+# passnger on flight management
 class PassengersController < ApplicationController
   before_action :set_flight
   before_action :set_passenger, only: %i[show update destroy]

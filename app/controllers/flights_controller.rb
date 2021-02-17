@@ -1,7 +1,10 @@
+# frozen_string_literal: true
+
+# flight management
 class FlightsController < ApplicationController
   before_action :set_flight, only: %i[show destroy]
   before_action :set_airplane, only: %i[create update]
-  
+
   # GET /flights
   def index
     @flights = Flight.all
@@ -11,7 +14,7 @@ class FlightsController < ApplicationController
 
   # GET /flights/1
   def show
-    render json: @flight, methods: [:seats, :available_seats]
+    render json: @flight, methods: %i[seats available_seats]
   end
 
   # POST /flights

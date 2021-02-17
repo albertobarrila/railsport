@@ -1,3 +1,6 @@
+# frozen_string_literal: true
+
+# airplane management
 class AirplanesController < ApplicationController
   before_action :set_airplane, only: %i[show update destroy]
 
