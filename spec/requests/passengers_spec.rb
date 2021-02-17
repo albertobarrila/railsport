@@ -20,6 +20,10 @@ RSpec.describe '/passengers', type: :request do
     { model: '737', number: 'AAA', seats: 200 }
   end
 
+  let(:low_capacity_airplane_attributes) do
+    { model: '737', number: 'AAA', seats: 1 }
+  end
+
   let(:flight_attributes) do
     {
       from: 'BGY',
@@ -37,7 +41,7 @@ RSpec.describe '/passengers', type: :request do
   end
 
   let(:invalid_attributes) do
-    { ffirstname: nil }
+    { firstname: nil }
   end
 
   # This should return the minimal set of values that should be in the headers
@@ -106,6 +110,28 @@ RSpec.describe '/passengers', type: :request do
              params: { passenger: invalid_attributes }, headers: valid_headers, as: :json
         expect(response).to have_http_status(:unprocessable_entity)
         expect(response.content_type).to match(a_string_including('application/json'))
+      end
+
+      context 'with valid parameters on an full airplane' do
+        it 'does not create a new Passenger' do
+          Airplane.create! low_capacity_airplane_attributes
+          flight = Flight.create! flight_attributes
+          Passenger.create! valid_attributes
+          expect do
+            post flight_passengers_url(flight),
+                 params: { passenger: valid_attributes }, as: :json
+          end.to change(Passenger, :count).by(0)
+        end
+  
+        it 'renders a JSON response with errors for the new passenger' do
+          Airplane.create! low_capacity_airplane_attributes
+          flight = Flight.create! flight_attributes
+          Passenger.create! valid_attributes
+          post flight_passengers_url(flight),
+               params: { passenger: valid_attributes }, headers: valid_headers, as: :json
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(response.content_type).to match(a_string_including('application/json'))
+        end
       end
     end
   end
