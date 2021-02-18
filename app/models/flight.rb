@@ -20,6 +20,10 @@ class Flight < ApplicationRecord
     airplane.seats - passengers.count
   end
 
+  def in_the_future?
+    departure > Time.current
+  end
+
   private
 
   def departure_is_in_the_future
